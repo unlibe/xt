@@ -51,14 +51,14 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var engine *gin.Engine
 		gin.DisableConsoleColor()
-		gin.SetMode(gin.ReleaseMode)
-		engine = gin.New()
-		//engine = gin.Default()
+		//gin.SetMode(gin.ReleaseMode)
+		//engine = gin.New()
+		engine = gin.Default()
 		r := engine
 
-		jsonToGo := rep.GetJsonToGo()
+		//jsonToGo := rep.GetJsonToGo()
 
-		//r.StaticFS("/json-to-go", http.FS(jsonToGo))
+
 
 		// 设置线上静态资源路径
 		//handler := fsFunc(func(name string) (fs.File, error) {
@@ -76,7 +76,7 @@ to quickly create a Cobra application.`,
 			return fsFunc(func(name string) (fs.File, error) {
 				assetPath := path.Join(dirPath, name)
 				// If we can't find the asset, fs can handle the error
-				file, err := jsonToGo.Open(assetPath)
+				file, err := assert.Open(assetPath)
 				if err != nil {
 					return nil, err
 				}
@@ -86,10 +86,12 @@ to quickly create a Cobra application.`,
 		}
 
 		// 获取静态资源
-		r.StaticFS("/json-to-go", http.FS(pathHandle("./resource/json-to-go", jsonToGo)))
-		r.StaticFS("/json-format", http.FS(pathHandle("./resource/json", rep.GetJsonJsonFormat())))
+		//r.StaticFS("/json-to-go", http.FS(jsonToGo))
+		//r.StaticFS("/json-to-go", http.FS(handler))
+		r.StaticFS("/json-to-go", http.FS(pathHandle("./resource/json-to-go", rep.GetJsonToGo())))
+		r.StaticFS("/json-format", http.FS(pathHandle("./resource/json-format", rep.GetJsonJsonFormat())))
 		srv := &http.Server{
-			Addr:           ":" + "80",
+			Addr:           ":" + "81",
 			Handler:        engine,
 			ReadTimeout:    10 * time.Second,
 			WriteTimeout:   10 * time.Second,

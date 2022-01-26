@@ -15,9 +15,9 @@ func GetJsonToGo() embed.FS {
 
 
 func JsonFormatInit(dataWebFS embed.FS) {
-	jsonToGo = dataWebFS
+	jsonFormat = dataWebFS
 }
 
 func GetJsonJsonFormat() embed.FS {
-	return jsonToGo
+	return jsonFormat
 }
