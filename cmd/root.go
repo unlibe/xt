@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"io/fs"
 	"log"
@@ -60,20 +61,33 @@ to quickly create a Cobra application.`,
 		//r.StaticFS("/json-to-go", http.FS(jsonToGo))
 
 		// 设置线上静态资源路径
-		handler := fsFunc(func(name string) (fs.File, error) {
-			assetPath := path.Join("./resource/json-to-go", name)
-			// If we can't find the asset, fs can handle the error
-			file, err := jsonToGo.Open(assetPath)
-			if err != nil {
-				return nil, err
-			}
-			// Otherwise, assume this is a legitimate request routed correctly
-			return file, err
-		})
+		//handler := fsFunc(func(name string) (fs.File, error) {
+		//	assetPath := path.Join("./resource/json-to-go", name)
+		//	// If we can't find the asset, fs can handle the error
+		//	file, err := jsonToGo.Open(assetPath)
+		//	if err != nil {
+		//		return nil, err
+		//	}
+		//	// Otherwise, assume this is a legitimate request routed correctly
+		//	return file, err
+		//})
+
+		pathHandle := func(dirPath string, assert embed.FS) fsFunc {
+			return fsFunc(func(name string) (fs.File, error) {
+				assetPath := path.Join(dirPath, name)
+				// If we can't find the asset, fs can handle the error
+				file, err := jsonToGo.Open(assetPath)
+				if err != nil {
+					return nil, err
+				}
+				// Otherwise, assume this is a legitimate request routed correctly
+				return file, err
+			})
+		}
 
 		// 获取静态资源
-		r.StaticFS("/json-to-go", http.FS(handler))
-
+		r.StaticFS("/json-to-go", http.FS(pathHandle("./resource/json-to-go", jsonToGo)))
+		r.StaticFS("/json-format", http.FS(pathHandle("./resource/json", rep.GetJsonJsonFormat())))
 		srv := &http.Server{
 			Addr:           ":" + "80",
 			Handler:        engine,
