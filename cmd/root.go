@@ -40,7 +40,7 @@ func (f fsFunc) Open(name string) (fs.File, error) {
 
 // rootCmd represents the root command
 var rootCmd = &cobra.Command{
-	Use:   "root",
+	Use:   "xt",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
