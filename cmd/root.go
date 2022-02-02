@@ -26,7 +26,7 @@ import (
 	"os/signal"
 	"path"
 	"time"
-	"xt/rep"
+	"github.com/xknowledge/xt/rep"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"

@@ -2,8 +2,8 @@ package main
 
 import (
 	"embed"
-	"xt/cmd"
-	"xt/rep"
+	"github.com/xknowledge/xt/cmd"
+	"github.com/xknowledge/xt/rep"
 )
 
 //go:embed resource/json-to-go
