@@ -19,6 +19,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"github.com/xknowledge/xt/rep"
 	"io/fs"
 	"log"
 	"net/http"
@@ -26,7 +27,6 @@ import (
 	"os/signal"
 	"path"
 	"time"
-	"github.com/xknowledge/xt/rep"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
@@ -57,8 +57,6 @@ to quickly create a Cobra application.`,
 		r := engine
 
 		//jsonToGo := rep.GetJsonToGo()
-
-
 
 		// 设置线上静态资源路径
 		//handler := fsFunc(func(name string) (fs.File, error) {
