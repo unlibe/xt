@@ -16,7 +16,18 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
+	"embed"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/xknowledge/xt/rep"
+	"io/fs"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"path"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -32,7 +43,72 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("serve called")
+		var engine *gin.Engine
+		gin.DisableConsoleColor()
+		//gin.SetMode(gin.ReleaseMode)
+		//engine = gin.New()
+		engine = gin.Default()
+		r := engine
+
+		//jsonToGo := rep.GetJsonToGo()
+
+		// 设置线上静态资源路径
+		//handler := fsFunc(func(name string) (fs.File, error) {
+		//	assetPath := path.Join("./resource/json-to-go", name)
+		//	// If we can't find the asset, fs can handle the error
+		//	file, err := jsonToGo.Open(assetPath)
+		//	if err != nil {
+		//		return nil, err
+		//	}
+		//	// Otherwise, assume this is a legitimate request routed correctly
+		//	return file, err
+		//})
+
+		pathHandle := func(dirPath string, assert embed.FS) fsFunc {
+			return fsFunc(func(name string) (fs.File, error) {
+				assetPath := path.Join(dirPath, name)
+				// If we can't find the asset, fs can handle the error
+				file, err := assert.Open(assetPath)
+				if err != nil {
+					return nil, err
+				}
+				// Otherwise, assume this is a legitimate request routed correctly
+				return file, err
+			})
+		}
+
+		// 获取静态资源
+		//r.StaticFS("/json-to-go", http.FS(jsonToGo))
+		//r.StaticFS("/json-to-go", http.FS(handler))
+		r.StaticFS("/json-to-go", http.FS(pathHandle("./resource/json-to-go", rep.GetJsonToGo())))
+		r.StaticFS("/json-format", http.FS(pathHandle("./resource/json-format", rep.GetJsonJsonFormat())))
+		srv := &http.Server{
+			Addr:           ":" + "81",
+			Handler:        engine,
+			ReadTimeout:    10 * time.Second,
+			WriteTimeout:   10 * time.Second,
+			MaxHeaderBytes: 1 << 20,
+		}
+
+		go func() {
+			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				log.Fatalf("listen: %s\n", err)
+			}
+		}()
+
+		fmt.Println("serve start")
+
+		quit := make(chan os.Signal)
+		signal.Notify(quit, os.Interrupt)
+		_ = <-quit
+
+		fmt.Println("Shutdown Server ...")
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := srv.Shutdown(ctx); err != nil {
+			fmt.Println("Server Shutdown:", err)
+		}
+		fmt.Println("Server exiting")
 	},
 }
 
